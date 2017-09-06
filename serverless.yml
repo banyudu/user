@@ -8,13 +8,34 @@ provider:
   stage: production
   region: us-west-2
 
+plugins:
+  - serverless-offline
+
 functions:
-  hello:
-    handler: handler.hello
+  create:
+    handler: handler.createUser
     events:
       - http:
-          path: users/create
+          path: create
+          method: post
+  get:
+    handler: handler.getUser
+    events:
+      - http:
+          path: get/{id}
           method: get
+  update:
+    handler: handler.updateUser
+    events:
+      - http:
+          path: update/{id}
+          method: put
+  delete:
+    handler: handler.deleteUser
+    events:
+      - http:
+          path: delete/{id}
+          method: delete
 
 resources:
   Resources:
