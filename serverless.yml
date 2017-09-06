@@ -10,6 +10,7 @@ provider:
 
 plugins:
   - serverless-offline
+#  - serverless-dynamodb-local
 
 functions:
   create:
@@ -18,24 +19,28 @@ functions:
       - http:
           path: create
           method: post
+          cors: true
   get:
     handler: handler.getUser
     events:
       - http:
           path: get/{id}
           method: get
+          cors: true
   update:
     handler: handler.updateUser
     events:
       - http:
           path: update/{id}
           method: put
+          cors: true
   delete:
     handler: handler.deleteUser
     events:
       - http:
           path: delete/{id}
           method: delete
+          cors: true
 
 resources:
   Resources:
