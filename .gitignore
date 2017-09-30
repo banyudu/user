@@ -7,3 +7,10 @@ jspm_packages
 
 # istanbul output file
 .nyc_output/
+coverage/
+
+# serverless-plugin-typescript
+.build/
+
+# npm debug log
+npm-debug.log

@@ -1,6 +1,6 @@
-'use strict';
+'use strict'
 
-module.exports = {
+export const Errors = {
   1: 'Unknown error',
   2: 'Resource not found',
   3: 'Timeout',
@@ -26,4 +26,4 @@ module.exports = {
 
   // delete user
   1300: 'No such user',
-};
+}

@@ -1,15 +1,15 @@
-'use strict';
+'use strict'
 
 // const constants = require('./constant');
 // const validator = require('validator');
 
-class Authorization{
+export class Authorization {
   /**
    * Validate the authorization string
    * @param {String} auth Authorization header
    * @return {String} userId(null for failure)
    */
-  *validate(authorization) {
+  public async validate(authorization) {
     // TODO: implement this function
   }
 
@@ -18,7 +18,7 @@ class Authorization{
    * @param {String} userId User ID
    * @return {String} Authorization string
    */
-  *create(userId) {
+  public async create(userId) {
     // TODO: implement this function
   }
 
@@ -28,7 +28,7 @@ class Authorization{
    * @param {String} token
    * @return {String} authorization
    */
-  *encrypt(userId, token) {
+  public async encrypt(userId, token) {
     // TODO: implement this function
   }
 
@@ -38,9 +38,7 @@ class Authorization{
    * @return {String} userId
    * @return {String} token
    */
-  *decrypt(authorization) {
+  public async decrypt(authorization) {
     // TODO: implement this function
   }
 }
-
-module.exports = new Authorization();

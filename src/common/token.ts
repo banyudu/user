@@ -1,9 +1,9 @@
-'use strict';
+'use strict'
 
 // const constants = require('./constant');
 // const validator = require('validator');
 
-class Token {
+export class Token {
   /**
    * Get token for given user
    * @param {String} userId
@@ -13,8 +13,9 @@ class Token {
    * @param {String} client.userAgent
    * @return {String} Token
    */
-  *get(userId, client) {
+  public get(userId: string, client: string): string {
     // TODO: implement this function
+    return ''
   }
 
   /**
@@ -26,9 +27,8 @@ class Token {
    * @param {String} client.userAgent
    * @return {String} Token
    */
-  *refresh(userId, client) {
+  public refresh(userId: string, client: string): string {
     // TODO: implement this function
+    return ''
   }
 }
-
-module.exports = new Token();
