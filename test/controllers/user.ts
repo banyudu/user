@@ -4,21 +4,21 @@ import {Chance, Run, Support} from '../assets'
 
 const User = new UserClass()
 
-describe('createUser', () => {
-  it('create with name', (done) => {
+describe('signup', () => {
+  it('signup with name', (done) => {
     Run(async () => {
       const username = Chance.first()
       const password = Chance.string()
-      const user = await User.createUser({username, password})
+      const user = await User.signup({username, password})
       assert(user.id)
       assert(user.token)
     }, done)
   })
-  it('create with email', (done) => {
+  it('signup with email', (done) => {
     Run(async () => {
       const email = Chance.email()
       const password = Chance.string()
-      const user = await User.createUser({email, password})
+      const user = await User.signup({email, password})
       assert(user.id)
       assert(user.token)
     }, done)
