@@ -29,10 +29,11 @@ interface ISigninResult {
 }
 
 interface IUser {
-  createUser(params: any, headers?: any): Promise<{id: string, token: string}>
-  getUser(params: any, headers?: any): Promise<{id: string, token: string}>
+  signup(params: any, headers?: any): Promise<{id: string, token: string}>
+  getProfile(params: any, headers?: any): Promise<{id: string, token: string}>
   signin(params: any, headers?: any): Promise<{id: string, token: string}>
-  updateUser(params: any, headers?: any): Promise<{id: string}>
+  signout(params: any, headers?: any): Promise<void>
+  setProfile(params: any, headers?: any): Promise<{id: string}>
   deleteUser(params: any, headers?: any): Promise<void>
 }
 
@@ -55,7 +56,7 @@ export class User implements IUser {
    * @param {Number} params.sex
    * @param {Object} headers
    */
-  public async createUser(params: any, headers?: any): Promise<{id: string, token: string}> {
+  public async signup(params: any, headers?: any): Promise<{id: string, token: string}> {
     const acceptFields = KEY_FIELDS.concat(EXTRA_FIELDS).concat(REQUIRED_FIELDS)
 
     // require at least one key in keyFields exists
@@ -141,7 +142,7 @@ export class User implements IUser {
     return { id: data.id, token: ''}
   }
 
-  public async getUser(params, headers): Promise<{id: string, token: string}> {
+  public async getProfile(params, headers): Promise<{id: string, token: string}> {
     if (_.isNil(params.id)) {
       throw new Exception(4)
     }
@@ -198,11 +199,11 @@ export class User implements IUser {
     return {id: '', token: ''}
   }
 
-  public async updateUser(params, headers): Promise<{id: string}> {
+  public async setProfile(params, headers): Promise<{id: string}> {
     if (_.isNil(params.id)) {
       throw new Exception(4)
     }
-    const user = await this.getUser(params, headers)
+    const user = await this.getProfile(params, headers)
     const acceptFields = KEY_FIELDS.concat(EXTRA_FIELDS).concat(REQUIRED_FIELDS)
 
     // pick accepted fields
@@ -346,5 +347,9 @@ export class User implements IUser {
         await docClient.delete(qryDeleteSlave).promise()
       }
     }
+  }
+
+  public async signout(params, headers?: any): Promise<void> {
+    // TODO: implement this function
   }
 }

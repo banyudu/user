@@ -28,6 +28,7 @@
     "@types/mocha": "^2.2.43",
     "@types/node": "^8.0.31",
     "chance": "^1.0.11",
+    "js-yaml": "^3.10.0",
     "mocha": "^3.5.3",
     "nyc": "^11.2.1",
     "power-assert": "^1.4.4",
@@ -44,15 +45,23 @@
     "aws-sdk": "^2.110.0",
     "co": "^4.6.0",
     "crypto": "^1.0.1",
+    "fs": "^0.0.1-security",
     "lodash": "^4.17.4",
+    "path": "^0.12.7",
     "qs": "^6.5.0",
     "uuid": "^3.1.0",
     "validator": "^8.1.0"
   },
   "nyc": {
-    "extension": [".ts"],
-    "exclude": ["**/*.d.ts"],
-    "reporter": ["html"],
+    "extension": [
+      ".ts"
+    ],
+    "exclude": [
+      "**/*.d.ts"
+    ],
+    "reporter": [
+      "html"
+    ],
     "all": true
   }
 }

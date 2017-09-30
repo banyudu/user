@@ -52,7 +52,6 @@ async function run(event, context, callback, handler) {
       }
     }
   } catch (error) {
-    console.error(error)
     if (error.code) {
       response.body.code = error.code
     }

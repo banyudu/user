@@ -3,7 +3,6 @@ export async function Run(func: () => Promise<any>, callback) {
     await func()
     callback()
   } catch (error) {
-    console.error(error)
     callback(error)
   }
 }

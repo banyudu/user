@@ -1,4 +1,4 @@
-service: aws-nodejs # NOTE: update this with your service name
+service: user
 
 provider:
   name: aws
@@ -8,7 +8,7 @@ provider:
   region: us-west-2
 
 plugins:
-  - serverless-dynamodb-local
+  # - serverless-dynamodb-local
   - serverless-plugin-typescript
   - serverless-offline
 
@@ -18,23 +18,23 @@ package:
     - test/**
 
 functions:
-  create:
-    handler: handler.createUser
+  getProfile:
+    handler: handler.getProfile
     events:
       - http:
-          path: create
-          method: post
-  get:
-    handler: handler.getUser
-    events:
-      - http:
-          path: get/{id}
+          path: profile/{id}
           method: get
-  update:
-    handler: handler.updateUser
+      - http:
+          path: profile
+          method: get
+  setProfile:
+    handler: handler.setProfile
     events:
       - http:
-          path: update/{id}
+          path: profile/{id}
+          method: put
+      - http:
+          path: profile
           method: put
   delete:
     handler: handler.deleteUser
@@ -43,7 +43,7 @@ functions:
           path: delete/{id}
           method: delete
   signup:
-    handler: handler.createUser
+    handler: handler.signup
     events:
       - http:
           path: signup
@@ -53,6 +53,12 @@ functions:
     events:
       - http:
           path: signin
+          method: post
+  signout:
+    handler: handler.signout
+    events:
+      - http:
+          path: signout
           method: post
 
 resources:
