@@ -83,10 +83,11 @@ export class Support implements ISupport {
     const user = await User.signup(params)
     // default signup role is normalUser, check whether need to modify user role
     await db.update({
-      ExpressionAttributeValues: { ':role': role },
+      ExpressionAttributeNames: {'#attrName': 'role'},
+      ExpressionAttributeValues: { ':attrValue': role },
       Key: {id: user.id},
       TableName: Constants.tables.users,
-      UpdateExpression: `SET role = :role`,
+      UpdateExpression: `SET #attrName = :attrValue`,
     }).promise()
     const id = user.id
     const token = user.token
