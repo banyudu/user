@@ -85,6 +85,7 @@ export class User implements IUser {
         throw new Exception(1004)
       }
     }
+    data.role = Constants.userRole.normal
     // validate complete
 
     // encrypt password

@@ -1,5 +1,5 @@
 import {User} from '../../src/controllers'
-import {Authorization, Constants, Exception} from '../../src/services'
+import {Authorization, Constants, db, Exception} from '../../src/services'
 import {Chance} from './'
 
 interface ISupportUser {
@@ -10,6 +10,7 @@ interface ISupportUser {
   password: string,
   authorization: string,
   client: Constants.client,
+  role: Constants.userRole,
 }
 
 interface ISupportUserOption {
@@ -19,11 +20,13 @@ interface ISupportUserOption {
 interface ISupport {
   getAdministrator(options?: ISupportUserOption): Promise<ISupportUser>
   getNormalUser(options?: ISupportUserOption): Promise<ISupportUser>
+  getMaster(options?: ISupportUserOption): Promise<ISupportUser>
 }
 
 export class Support implements ISupport {
   private administrator: ISupportUser
   private normalUser: ISupportUser
+  private master: ISupportUser
 
   /**
    * Get administrator account
@@ -51,25 +54,48 @@ export class Support implements ISupport {
     return this.normalUser
   }
 
+  /**
+   * Get master account
+   * @param {Object} options
+   * @param {Boolean} options.refresh Whether refresh account
+   */
+  public async getMaster(options?: ISupportUserOption): Promise<ISupportUser> {
+    options = options || {refresh: false}
+    if (!this.master || options.refresh) {
+      this.master = await this.refreshUser(Constants.userRole.master)
+    }
+    return this.master
+  }
+
   private async refreshUser(role: Constants.userRole): Promise<ISupportUser> {
-    if ((role !== Constants.userRole.administrator) && (role !== Constants.userRole.normal)) {
-      // only test administrator and normalUser, not master
+    if ([
+      Constants.userRole.administrator,
+      Constants.userRole.master,
+      Constants.userRole.normal,
+    ].indexOf(role) === -1) {
       throw new Exception(5)
     }
     const username = Chance.first()
     const email = Chance.email()
     const password = Chance.string()
     const client = Chance.pickone(Constants.client.jinjuDB, Constants.client.jinjuStock)
-    const params = {username, email, password, client}
+    const params = {username, email, password, client, role}
     const user = await User.signup(params)
+    // default signup role is normalUser, check whether need to modify user role
+    await db.update({
+      ExpressionAttributeValues: { ':role': role },
+      Key: {id: user.id},
+      TableName: Constants.tables.users,
+      UpdateExpression: `SET role = :role`,
+    }).promise()
     const id = user.id
     const token = user.token
     const authorization = await Authorization.encrypt(id, token)
     if (role === Constants.userRole.administrator) {
-      this.administrator = {id, token, authorization, username, email, password, client}
+      this.administrator = {id, token, authorization, username, email, password, client, role}
       return this.administrator
     } else {
-      this.normalUser = {id, token, authorization, username, email, password, client}
+      this.normalUser = {id, token, authorization, username, email, password, client, role}
       return this.normalUser
     }
   }
