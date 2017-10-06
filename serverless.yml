@@ -8,7 +8,7 @@ provider:
   region: us-west-2
 
 plugins:
-  # - serverless-dynamodb-local
+  - serverless-dynamodb-local
   - serverless-plugin-typescript
   - serverless-offline
 
@@ -98,6 +98,19 @@ resources:
             AttributeType: S
         KeySchema:
           - AttributeName: email
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    tokens:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: tokens
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1

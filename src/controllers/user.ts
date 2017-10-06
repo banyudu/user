@@ -2,11 +2,10 @@
  * @file user.js handler functions for user service
  */
 'use strict'
-import DynamoDB = require('aws-sdk/clients/dynamodb')
 import * as _ from 'lodash'
 import * as uuid from 'uuid/v4'
 import * as validator from 'validator'
-import {Account, Constants, Exception, Password} from '../common'
+import {Account, Constants, db, Exception, Password, Token} from '../services'
 
 const KEY_FIELDS = ['username', 'email']
 const REQUIRED_FIELDS = ['password']
@@ -15,13 +14,6 @@ const KEY_TABLE_MAP = {
   email: 'emailUsers',
   username: 'nameUsers',
 }
-
-const dynamodbOption: {region: string, endpoint?: string} = {region: Constants.REGION.US_WEST_2}
-if (process.env.IS_OFFLINE) {
-  dynamodbOption.region = Constants.REGION.LOCAL
-  dynamodbOption.endpoint = Constants.DYNAMODB_LOCAL_END_POINT
-}
-const docClient = new DynamoDB.DocumentClient(dynamodbOption)
 
 interface ISigninResult {
   id: string
@@ -73,23 +65,23 @@ export class User implements IUser {
     const data: any = _.pick(params, acceptFields)
 
     // validate data
-    if (data.username && !Constants.REGEX.USER_NAME.test(data.username)) {
+    if (data.username && !Constants.regex.username.test(data.username)) {
       throw new Exception(1000)
     }
     if (data.email && !validator.isEmail(data.email)) {
       throw new Exception(1001)
     }
-    if (!Constants.REGEX.PASSWORD.test(data.password)) {
+    if (!Constants.regex.password.test(data.password)) {
       throw new Exception(1005)
     }
     ['firstName', 'lastName'].forEach((e) => {
-      if (data[e] && !Constants.REGEX.FULL_NAME.test(data[e])) {
+      if (data[e] && !Constants.regex.fullname.test(data[e])) {
         throw new Exception(1003)
       }
     })
     if (!_.isNil(data.sex)) {
       data.sex = parseInt(data.sex, 10) || null
-      if (!_.includes([Constants.SEX.FEMALE, Constants.SEX.MALE], data.sex)) {
+      if (!_.includes([Constants.sex.female, Constants.sex.male], data.sex)) {
         throw new Exception(1004)
       }
     }
@@ -112,7 +104,7 @@ export class User implements IUser {
           Item: tmpData,
           TableName: KEY_TABLE_MAP[key],
         }
-        await docClient.put(qryCreate).promise()
+        await db.put(qryCreate).promise()
         successKeys.push(key)
       }
 
@@ -123,7 +115,7 @@ export class User implements IUser {
         Item: data,
         TableName: 'users',
       }
-      await docClient.put(query).promise()
+      await db.put(query).promise()
     } catch (error) {
       // rollback if fail
       for (const key of successKeys) {
@@ -133,13 +125,13 @@ export class User implements IUser {
           Key: {[key]: data[key]},
           TableName: KEY_TABLE_MAP[key],
         }
-        await docClient.delete(query).promise()
+        await db.delete(query).promise()
       }
       throw error
     }
 
-    // TODO: return token in createUser
-    return { id: data.id, token: ''}
+    const token = await Token.refresh(data.id, params.client)
+    return { id: data.id, token}
   }
 
   public async getProfile(params, headers): Promise<{id: string, token: string}> {
@@ -151,7 +143,7 @@ export class User implements IUser {
       Key: {id: params.id},
       TableName: 'users',
     }
-    const result = await docClient.get(qryFindUser).promise()
+    const result = await db.get(qryFindUser).promise()
     return _.get(result, 'Item')
   }
 
@@ -167,8 +159,8 @@ export class User implements IUser {
     }
     let fieldName
     switch (params.accountType) {
-      case Constants.ACCOUNT_TYPES.EMAIL: fieldName = 'email'; break
-      case Constants.ACCOUNT_TYPES.NAME: fieldName = 'username'; break
+      case Constants.accountType.email: fieldName = 'email'; break
+      case Constants.accountType.name: fieldName = 'username'; break
       default: throw new Exception(1201)
     }
     const tableName = KEY_TABLE_MAP[fieldName]
@@ -177,7 +169,7 @@ export class User implements IUser {
       Key: { [fieldName]: params.account },
       TableName: tableName,
     }
-    const result = await docClient.get(qryFindUserId).promise()
+    const result = await db.get(qryFindUserId).promise()
     const id = _.get(result, ['Item', 'userId'])
     if (_.isNil(id)) {
       throw new Exception(1200)
@@ -187,7 +179,7 @@ export class User implements IUser {
       Key: {id},
       TableName: 'users',
     }
-    const userQryResult = await docClient.get(qryGetUser).promise()
+    const userQryResult = await db.get(qryGetUser).promise()
     const user: any = _.get(userQryResult, 'Item')
     if (!user) {
       throw new Exception(1200)
@@ -214,20 +206,20 @@ export class User implements IUser {
     actualKeyFields = actualKeyFields.filter((e) => params[e] !== user[e]) || []
 
     // validate data
-    if (data.username && !Constants.REGEX.USER_NAME.test(data.username)) {
+    if (data.username && !Constants.regex.username.test(data.username)) {
       throw new Exception(1000)
     }
     if (data.email && !validator.isEmail(data.email)) {
       throw new Exception(1001)
     }
     ['firstName', 'lastName'].forEach((e) => {
-      if (data[e] && !Constants.REGEX.FULL_NAME.test(data[e])) {
+      if (data[e] && !Constants.regex.fullname.test(data[e])) {
         throw new Exception(1003)
       }
     })
     if (!_.isNil(data.sex)) {
       data.sex = parseInt(data.sex, 10) || null
-      if (!_.includes([Constants.SEX.FEMALE, Constants.SEX.MALE], data.sex)) {
+      if (!_.includes([Constants.sex.female, Constants.sex.male], data.sex)) {
         throw new Exception(1004)
       }
     }
@@ -246,7 +238,7 @@ export class User implements IUser {
           },
           TableName: KEY_TABLE_MAP[key],
         }
-        await docClient.put(queryInsert).promise()
+        await db.put(queryInsert).promise()
 
         const queryDelete = {
           Key: {
@@ -254,7 +246,7 @@ export class User implements IUser {
           },
           TableName: KEY_TABLE_MAP[key],
         }
-        await docClient.delete(queryDelete).promise()
+        await db.delete(queryDelete).promise()
         successKeys.push(key)
       }
 
@@ -274,7 +266,7 @@ export class User implements IUser {
         }
       }
       query.UpdateExpression = `SET ` + updateActions.join(', ')
-      await docClient.update(query).promise()
+      await db.update(query).promise()
     } catch (error) {
       // rollback if fail
       for (const key of successKeys) {
@@ -284,7 +276,7 @@ export class User implements IUser {
           },
           TableName: KEY_TABLE_MAP[key],
         }
-        await docClient.delete(queryDelete).promise()
+        await db.delete(queryDelete).promise()
 
         const queryInsert = {
           ConditionExpression: `attribute_not_exists(${key})`,
@@ -294,7 +286,7 @@ export class User implements IUser {
           },
           TableName: KEY_TABLE_MAP[key],
         }
-        await docClient.put(queryInsert).promise()
+        await db.put(queryInsert).promise()
       }
 
       console.error(error)
@@ -323,7 +315,7 @@ export class User implements IUser {
       Key: {id},
       TableName: 'users',
     }
-    const userQryResult = await docClient.get(qryGetUser).promise()
+    const userQryResult = await db.get(qryGetUser).promise()
     const user = _.get(userQryResult, 'Item')
     if (!user) {
       throw new Exception(1300)
@@ -334,7 +326,7 @@ export class User implements IUser {
       Key: {id},
       TableName: 'users',
     }
-    await docClient.delete(qryDeleteMaster).promise()
+    await db.delete(qryDeleteMaster).promise()
 
     for (const field of KEY_FIELDS) {
       if (user[field]) {
@@ -344,7 +336,7 @@ export class User implements IUser {
           },
           TableName: KEY_TABLE_MAP[field],
         }
-        await docClient.delete(qryDeleteSlave).promise()
+        await db.delete(qryDeleteSlave).promise()
       }
     }
   }

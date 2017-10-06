@@ -1,5 +1,5 @@
 import validator = require('validator')
-import constants = require('./constant')
+import {Constants} from './'
 
 export class Account {
   /**
@@ -9,10 +9,10 @@ export class Account {
    */
   public getAccountType(account: string) {
     if (validator.isEmail(account)) {
-      return constants.ACCOUNT_TYPES.EMAIL
+      return Constants.accountType.email
     }
-    if (constants.REGEX.USER_NAME.test(account)) {
-      return constants.ACCOUNT_TYPES.NAME
+    if (Constants.regex.username.test(account)) {
+      return Constants.accountType.name
     }
     return null
   }

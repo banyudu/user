@@ -1,8 +1,8 @@
 import * as assert from 'power-assert'
-import {Password} from '../../src/common'
+import {Password} from '../../src/services'
 import {Chance} from '../assets'
 
-describe('sha256', () => {
+describe('Password#sha256', () => {
   it('with salt', () => {
     const password = Chance.string()
     const salt = Chance.string()

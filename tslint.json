@@ -21,6 +21,7 @@
       ]
     },
     "semicolon": [true, "never"],
+    "no-namespace": false,
     "quotemark": [true, "single"]
   },
   "jsRules": {

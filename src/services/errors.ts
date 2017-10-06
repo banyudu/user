@@ -5,6 +5,7 @@ export const Errors = {
   2: 'Resource not found',
   3: 'Timeout',
   4: 'Incomplete arguments',
+  5: 'Invalid argument',
 
   // validate error
   1000: 'Invalid username',

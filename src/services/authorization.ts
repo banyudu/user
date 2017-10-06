@@ -9,17 +9,9 @@ export class Authorization {
    * @param {String} auth Authorization header
    * @return {String} userId(null for failure)
    */
-  public async validate(authorization) {
+  public async validate(authorization): Promise<boolean> {
     // TODO: implement this function
-  }
-
-  /**
-   * Create authorization string from userId
-   * @param {String} userId User ID
-   * @return {String} Authorization string
-   */
-  public async create(userId) {
-    // TODO: implement this function
+    return false
   }
 
   /**
@@ -28,8 +20,9 @@ export class Authorization {
    * @param {String} token
    * @return {String} authorization
    */
-  public async encrypt(userId, token) {
+  public async encrypt(userId, token): Promise<string> {
     // TODO: implement this function
+    return ''
   }
 
   /**
@@ -38,7 +31,8 @@ export class Authorization {
    * @return {String} userId
    * @return {String} token
    */
-  public async decrypt(authorization) {
+  public async decrypt(authorization): Promise<{userId: string, token: string}> {
     // TODO: implement this function
+    return {userId: '', token: ''}
   }
 }

@@ -1,13 +1,13 @@
 'use strict'
 
-import * as constants from './constant'
+import {Constants} from './constant'
 
 import * as DynamoDB from 'aws-sdk/clients/dynamodb'
 // create dynamodb client
-const dynamodbOption: {region: string, endpoint?: string} = {region: constants.REGION.US_WEST_2}
+const dynamodbOption: {region: string, endpoint?: string} = {region: Constants.region.usWest2}
 if (process.env.IS_OFFLINE) {
-  dynamodbOption.region = constants.REGION.LOCAL
-  dynamodbOption.endpoint = constants.DYNAMODB_LOCAL_END_POINT
+  dynamodbOption.region = Constants.region.local
+  dynamodbOption.endpoint = Constants.dynamodbLocalEndPoint
 }
 const docClient = new DynamoDB.DocumentClient(dynamodbOption)
 
