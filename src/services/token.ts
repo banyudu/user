@@ -16,11 +16,12 @@ export class Token {
    * @return {String} Token
    */
   public async get(userId: string, client: Constants.client): Promise<string> {
-    const tokens = await db.get({
+    const result = await db.get({
       Key: {userId},
       TableName: Constants.tables.tokens,
     }).promise()
-    return _.get(tokens, client)
+    const data = _.get(result, 'Item')
+    return _.get(data, ['tokens', client])
   }
 
   /**
@@ -42,19 +43,22 @@ export class Token {
     try {
       await db.put({
         ConditionExpression: `attribute_not_exists(userId)`,
-        Item: {userId, tokens: {[client]: newToken}},
+        Item: {userId, tokens: {}},
         TableName: Constants.tables.tokens,
       }).promise()
     } catch (error) {
       //
     }
     await db.update({
+      ExpressionAttributeNames: {
+        '#K': client,
+      },
       ExpressionAttributeValues: {
         ':value': newToken,
       },
       Key: { userId },
       TableName: Constants.tables.tokens,
-      UpdateExpression: `SET tokens.${client} = :value`,
+      UpdateExpression: `SET tokens.#K = :value`,
     }).promise()
     return newToken
   }

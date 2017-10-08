@@ -78,7 +78,7 @@ export class Support implements ISupport {
     const username = Chance.first()
     const email = Chance.email()
     const password = Chance.string()
-    const client = Chance.pickone(Constants.client.jinjuDB, Constants.client.jinjuStock)
+    const client = Chance.pickone([Constants.client.jinjuDB, Constants.client.jinjuStock])
     const params = {username, email, password, client, role}
     const user = await User.signup(params)
     // default signup role is normalUser, check whether need to modify user role

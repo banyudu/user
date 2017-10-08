@@ -49,6 +49,7 @@ export class User implements IUser {
    * @param {Object} headers
    */
   public async signup(params: any, headers?: any): Promise<{id: string, token: string}> {
+    headers = headers || {}
     const acceptFields = KEY_FIELDS.concat(EXTRA_FIELDS).concat(REQUIRED_FIELDS)
 
     // require at least one key in keyFields exists
@@ -86,6 +87,7 @@ export class User implements IUser {
       }
     }
     data.role = Constants.userRole.normal
+    headers.client = headers.client || Constants.client.other
     // validate complete
 
     // encrypt password
@@ -131,7 +133,7 @@ export class User implements IUser {
       throw error
     }
 
-    const token = await Token.refresh(data.id, params.client)
+    const token = await Token.refresh(data.id, headers.client)
     return { id: data.id, token}
   }
 
@@ -149,7 +151,7 @@ export class User implements IUser {
   }
 
   public async signin(params, headers?: any): Promise<ISigninResult> {
-    if (!params.account) {
+    if (!params.account || !params.password) {
       throw new Exception(4)
     }
     if (!params.accountType) {
@@ -171,7 +173,7 @@ export class User implements IUser {
       TableName: tableName,
     }
     const result = await db.get(qryFindUserId).promise()
-    const id = _.get(result, ['Item', 'userId'])
+    const id: string = _.get(result, ['Item', 'userId'])
     if (_.isNil(id)) {
       throw new Exception(1200)
     }
@@ -189,7 +191,8 @@ export class User implements IUser {
     if (Password.sha256(params.password, salt).password !== password) {
       throw new Exception(1203)
     }
-    return {id: '', token: ''}
+    const token = await Token.refresh(id, headers.client)
+    return {id, token}
   }
 
   public async setProfile(params, headers): Promise<{id: string}> {

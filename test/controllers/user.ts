@@ -1,14 +1,14 @@
 import * as assert from 'power-assert'
-import {User as UserClass} from '../../src/controllers/user'
+import {User} from '../../src/controllers'
+import {Constants} from '../../src/services'
 import {Chance, Run, Support} from '../assets'
 
-const User = new UserClass()
-
-describe('signup', () => {
+describe('User#signup', () => {
   it('signup with name', (done) => {
     Run(async () => {
       const username = Chance.first()
-      const password = Chance.string()
+      const passwordLength: number = Chance.integer({min: 6, max: 30})
+      const password = Chance.string({length: passwordLength})
       const user = await User.signup({username, password})
       assert(user.id, 'id')
       assert(user.token, 'token')
@@ -25,16 +25,16 @@ describe('signup', () => {
   })
 })
 
-describe('signin', () => {
+describe('User#signin', () => {
   it('signin with username', (done) => {
     Run(async () => {
       const normalUser = await Support.getNormalUser()
       const user = await User.signin({
+        account: normalUser.username,
         password: normalUser.password,
-        username: normalUser.username,
-      })
-      assert.equal(user.id, normalUser.id)
-      assert.equal(user.token, normalUser.token)
+      }, {client: normalUser.client})
+      assert.equal(user.id, normalUser.id, `id of ${normalUser.username}`)
+      assert.notEqual(user.token, null, `token of ${normalUser.username}`)
     }, done)
   })
 
@@ -42,16 +42,16 @@ describe('signin', () => {
     Run(async () => {
       const normalUser = await Support.getNormalUser()
       const user = await User.signin({
+        account: normalUser.email,
         password: normalUser.password,
-        username: normalUser.email,
-      })
-      assert.equal(user.id, normalUser.id)
-      assert.equal(user.token, normalUser.token)
+      }, {client: normalUser.client})
+      assert.equal(user.id, normalUser.id, `id of ${normalUser.email}`)
+      assert.notEqual(user.token, null, `token of ${normalUser.email}`)
     }, done)
   })
 })
 
-describe('delete', () => {
+describe('User#delete', () => {
   it('normal user delete self', (done) => {
     Run(async () => {
       const normalUser = await Support.getNormalUser()

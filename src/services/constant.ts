@@ -22,9 +22,9 @@ export namespace Constants {
   }
 
   export enum client { // possible clients
-    jinjuDB = 1,
-    jinjuStock = 2,
-    other = 0,
+    jinjuDB = 'jinjuDB',
+    jinjuStock = 'jinjuStock',
+    other = 'other',
   }
 
   export enum userRole {
