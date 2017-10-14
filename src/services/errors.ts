@@ -27,4 +27,5 @@ export const Errors = {
 
   // delete user
   1300: 'No such user',
+  1301: 'No permission',
 }

@@ -1,10 +1,18 @@
 import {debug} from './'
-export async function Run(func: () => Promise<any>, callback) {
+interface IRunOptions {
+  expectException?: number  // expect exception with given value
+}
+export async function Run(func: () => Promise<any>, callback: (error?) => any, options?: IRunOptions) {
+  options = options || {}
+  let exception: any = null
   try {
     await func()
-    callback()
   } catch (error) {
     debug(error)
-    callback(error)
+    exception = error
   }
+  if (options.expectException && !exception) {
+    return callback(new Error(`Except exception ${options.expectException}, but no exception occurs!`))
+  }
+  return callback(exception)
 }
