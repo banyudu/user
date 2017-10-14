@@ -91,7 +91,7 @@ export class Support implements ISupport {
     }).promise()
     const id = user.id
     const token = user.token
-    const authorization = await Authorization.encrypt(id, token)
+    const authorization = await Authorization.encode(id, token)
     if (role === Constants.userRole.administrator) {
       this.administrator = {id, token, authorization, username, email, password, client, role}
       return this.administrator

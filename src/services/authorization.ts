@@ -1,12 +1,11 @@
 'use strict'
 
-// const constants = require('./constant');
-// const validator = require('validator');
+import {Constants, debug, Exception, Token} from './'
 
 interface IAuthorization {
-  validate(authorization): Promise<boolean>
-  encode(userId, token): string
-  decode(authorization): {userId: string, token: string}
+  validate(authorization: string, client: Constants.client): Promise<boolean>
+  encode(userId: string, token: string): string
+  decode(authorization: string): {userId: string, token: string}
 }
 
 export class Authorization implements IAuthorization {
@@ -15,9 +14,10 @@ export class Authorization implements IAuthorization {
    * @param {String} auth Authorization header
    * @return {String} userId(null for failure)
    */
-  public async validate(authorization): Promise<boolean> {
-    // TODO: implement this function
-    return false
+  public async validate(authorization: string, client: Constants.client): Promise<boolean> {
+    const {userId, token} = this.decode(authorization)
+    const userToken = await Token.get(userId, client)
+    return token === userToken
   }
 
   /**
@@ -26,9 +26,13 @@ export class Authorization implements IAuthorization {
    * @param {String} token
    * @return {String} authorization
    */
-  public encode(userId, token): string {
-    // TODO: implement this function
-    return ''
+  public encode(userId: string, token: string): string {
+    if (!userId.length || !token.length) {
+      debug(`Invalid args: userId: ${userId}, token: ${token}`)
+      throw new Exception(1)
+    }
+    const authorization: string = new Buffer(`${userId} ${token}`).toString('base64')
+    return authorization
   }
 
   /**
@@ -37,8 +41,15 @@ export class Authorization implements IAuthorization {
    * @return {String} userId
    * @return {String} token
    */
-  public decode(authorization): {userId: string, token: string} {
-    // TODO: implement this function
-    return {userId: '', token: ''}
+  public decode(authorization: string): {userId: string, token: string} {
+    if (!authorization.length) {
+      debug(`Invalid args: authorization: ${authorization}`)
+      throw new Exception(1)
+    }
+    const authStr: string = new Buffer(authorization, 'base64').toString('utf8')
+    const spaceIndex: number = authStr.indexOf(' ')
+    const userId: string = authStr.substr(0, spaceIndex)
+    const token: string = authStr.substr(spaceIndex + 1)
+    return {userId, token}
   }
 }

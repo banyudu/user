@@ -28,4 +28,8 @@ export const Errors = {
   // delete user
   1300: 'No such user',
   1301: 'No permission',
+
+  // authorization
+  1400: 'Invalid authorization string',
+  1401: 'Authorization failed',
 }
