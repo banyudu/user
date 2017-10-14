@@ -1,14 +1,13 @@
 import * as assert from 'power-assert'
 import {User} from '../../src/controllers'
 import {Constants} from '../../src/services'
-import {Chance, Run, Support} from '../assets'
+import {chance, Run, Support} from '../assets'
 
 describe('User#signup', () => {
   it('signup with name', (done) => {
     Run(async () => {
-      const username = Chance.first()
-      const passwordLength: number = Chance.integer({min: 6, max: 30})
-      const password = Chance.string({length: passwordLength})
+      const username = chance.first()
+      const password = chance.password()
       const user = await User.signup({username, password})
       assert(user.id, 'id')
       assert(user.token, 'token')
@@ -16,8 +15,8 @@ describe('User#signup', () => {
   })
   it('signup with email', (done) => {
     Run(async () => {
-      const email = Chance.email()
-      const password = Chance.string()
+      const email = chance.email()
+      const password = chance.password()
       const user = await User.signup({email, password})
       assert(user.id, 'id')
       assert(user.token, 'token')

@@ -20,7 +20,7 @@ export class Token {
       Key: {userId},
       TableName: Constants.tables.tokens,
     }).promise()
-    const data = _.get(result, 'Item')
+    const data: any = _.get(result, 'Item')
     return _.get(data, ['tokens', client])
   }
 

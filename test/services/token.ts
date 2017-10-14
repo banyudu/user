@@ -1,7 +1,7 @@
 import * as assert from 'power-assert'
 import {User} from '../../src/controllers'
 import {Token} from '../../src/services'
-import {Chance, Run, Support} from '../assets'
+import {chance, Run, Support} from '../assets'
 
 describe('Token#get', () => {
   it('normalUser', (done) => {

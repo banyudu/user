@@ -1,6 +1,6 @@
 import {User} from '../../src/controllers'
 import {Authorization, Constants, db, Exception} from '../../src/services'
-import {Chance} from './'
+import {chance} from './'
 
 interface ISupportUser {
   id: string,
@@ -75,12 +75,12 @@ export class Support implements ISupport {
     ].indexOf(role) === -1) {
       throw new Exception(5)
     }
-    const username = Chance.first()
-    const email = Chance.email()
-    const password = Chance.string()
-    const client = Chance.pickone([Constants.client.jinjuDB, Constants.client.jinjuStock])
-    const params = {username, email, password, client, role}
-    const user = await User.signup(params)
+    const username = chance.first()
+    const email = chance.email()
+    const password = chance.password()
+    const client = chance.pickone([Constants.client.jinjuDB, Constants.client.jinjuStock])
+    const params = {username, email, password, role}
+    const user = await User.signup(params, {client})
     // default signup role is normalUser, check whether need to modify user role
     await db.update({
       ExpressionAttributeNames: {'#attrName': 'role'},
