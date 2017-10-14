@@ -1,11 +1,10 @@
-/* tslint:disable:interface-name no-shadowed-variable */
 import Chance = require('chance')
 
-interface MyChance extends Chance.Chance {
+interface IChance extends Chance.Chance {
   password(): string
 }
 
-export const chance = new Chance() as MyChance
+export const chance = new Chance() as IChance
 
 // mixins
 chance.mixin({
