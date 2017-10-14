@@ -3,7 +3,13 @@
 // const constants = require('./constant');
 // const validator = require('validator');
 
-export class Authorization {
+interface IAuthorization {
+  validate(authorization): Promise<boolean>
+  encode(userId, token): string
+  decode(authorization): {userId: string, token: string}
+}
+
+export class Authorization implements IAuthorization {
   /**
    * Validate the authorization string
    * @param {String} auth Authorization header
@@ -20,7 +26,7 @@ export class Authorization {
    * @param {String} token
    * @return {String} authorization
    */
-  public async encrypt(userId, token): Promise<string> {
+  public encode(userId, token): string {
     // TODO: implement this function
     return ''
   }
@@ -31,7 +37,7 @@ export class Authorization {
    * @return {String} userId
    * @return {String} token
    */
-  public async decrypt(authorization): Promise<{userId: string, token: string}> {
+  public decode(authorization): {userId: string, token: string} {
     // TODO: implement this function
     return {userId: '', token: ''}
   }

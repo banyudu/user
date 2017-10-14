@@ -5,7 +5,7 @@
 import * as _ from 'lodash'
 import * as uuid from 'uuid/v4'
 import * as validator from 'validator'
-import {Account, Constants, db, Exception, Password, Token} from '../services'
+import {Account, Constants, db, debug, Exception, Password, Token} from '../services'
 
 const KEY_FIELDS = ['username', 'email']
 const REQUIRED_FIELDS = ['password']
@@ -293,7 +293,7 @@ export class User implements IUser {
         await db.put(queryInsert).promise()
       }
 
-      console.error(error)
+      debug(error)
       // throw
       if (successKeys.length !== actualKeyFields.length) {
         // one of key attributes fails
