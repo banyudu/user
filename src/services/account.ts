@@ -1,4 +1,5 @@
 import validator = require('validator')
+import * as Types from '../../types'
 import {Constants} from './'
 
 export class Account {
@@ -9,10 +10,10 @@ export class Account {
    */
   public getAccountType(account: string) {
     if (validator.isEmail(account)) {
-      return Constants.accountType.email
+      return Types.AccountType.email
     }
     if (Constants.regex.username.test(account)) {
-      return Constants.accountType.name
+      return Types.AccountType.name
     }
     return null
   }

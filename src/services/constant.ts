@@ -16,22 +16,6 @@ export namespace Constants {
     password: /^.{6,30}$/,
     username: /^[a-zA-Z0-9_]{3,30}$/,
   }
-  export enum accountType {
-    email = 1,
-    name = 2,
-  }
-
-  export enum client { // possible clients
-    jinjuDB = 'jinjuDB',
-    jinjuStock = 'jinjuStock',
-    other = 'other',
-  }
-
-  export enum userRole {
-    master = 1, // system master, owner, root
-    administrator = 2, // administrator
-    normal = 3,
-  }
 
   export const tables = {
     emailUsers: 'emailUsers',

@@ -5,6 +5,7 @@
 import * as _ from 'lodash'
 import * as uuid from 'uuid/v4'
 import * as validator from 'validator'
+import * as Types from '../../types'
 import {Account, Constants, db, debug, Exception, Password, Token} from '../services'
 
 const KEY_FIELDS = ['username', 'email']
@@ -86,8 +87,8 @@ export class User implements IUser {
         throw new Exception(1004)
       }
     }
-    data.role = Constants.userRole.normal
-    headers.client = headers.client || Constants.client.other
+    data.role = Types.UserRole.normal
+    headers.client = headers.client || Types.UserClient.other
     // validate complete
 
     // encrypt password
@@ -162,8 +163,8 @@ export class User implements IUser {
     }
     let fieldName
     switch (params.accountType) {
-      case Constants.accountType.email: fieldName = 'email'; break
-      case Constants.accountType.name: fieldName = 'username'; break
+      case Types.AccountType.email: fieldName = 'email'; break
+      case Types.AccountType.name: fieldName = 'username'; break
       default: throw new Exception(1201)
     }
     const tableName = KEY_TABLE_MAP[fieldName]

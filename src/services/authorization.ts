@@ -1,9 +1,10 @@
 'use strict'
 
+import * as Types from '../../types'
 import {Constants, debug, Exception, Token} from './'
 
 interface IAuthorization {
-  validate(authorization: string, client: Constants.client): Promise<boolean>
+  validate(authorization: string, client: Types.UserClient): Promise<boolean>
   encode(userId: string, token: string): string
   decode(authorization: string): {userId: string, token: string}
 }
@@ -14,7 +15,7 @@ export class Authorization implements IAuthorization {
    * @param {String} auth Authorization header
    * @return {String} userId(null for failure)
    */
-  public async validate(authorization: string, client: Constants.client): Promise<boolean> {
+  public async validate(authorization: string, client: Types.UserClient): Promise<boolean> {
     const {userId, token} = this.decode(authorization)
     const userToken = await Token.get(userId, client)
     return token === userToken

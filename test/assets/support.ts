@@ -1,5 +1,6 @@
 import {User} from '../../src/controllers'
 import {Authorization, Constants, db, Exception} from '../../src/services'
+import * as Types from '../../types'
 import {chance} from './'
 
 interface ISupportUser {
@@ -9,8 +10,8 @@ interface ISupportUser {
   email?: string,
   password: string,
   authorization: string,
-  client: Constants.client,
-  role: Constants.userRole,
+  client: Types.UserClient,
+  role: Types.UserRole,
 }
 
 interface ISupportUserOption {
@@ -36,7 +37,7 @@ export class Support implements ISupport {
   public async getAdministrator(options?: ISupportUserOption): Promise<ISupportUser> {
     options = options || {refresh: false}
     if (!this.administrator || options.refresh) {
-      this.administrator = await this.refreshUser(Constants.userRole.administrator)
+      this.administrator = await this.refreshUser(Types.UserRole.administrator)
     }
     return this.administrator
   }
@@ -49,7 +50,7 @@ export class Support implements ISupport {
   public async getNormalUser(options?: ISupportUserOption): Promise<ISupportUser> {
     options = options || {refresh: false}
     if (!this.normalUser || options.refresh) {
-      this.normalUser = await this.refreshUser(Constants.userRole.normal)
+      this.normalUser = await this.refreshUser(Types.UserRole.normal)
     }
     return this.normalUser
   }
@@ -62,23 +63,23 @@ export class Support implements ISupport {
   public async getMaster(options?: ISupportUserOption): Promise<ISupportUser> {
     options = options || {refresh: false}
     if (!this.master || options.refresh) {
-      this.master = await this.refreshUser(Constants.userRole.master)
+      this.master = await this.refreshUser(Types.UserRole.master)
     }
     return this.master
   }
 
-  private async refreshUser(role: Constants.userRole): Promise<ISupportUser> {
+  private async refreshUser(role: Types.UserRole): Promise<ISupportUser> {
     if ([
-      Constants.userRole.administrator,
-      Constants.userRole.master,
-      Constants.userRole.normal,
+      Types.UserRole.administrator,
+      Types.UserRole.master,
+      Types.UserRole.normal,
     ].indexOf(role) === -1) {
       throw new Exception(5)
     }
     const username = chance.first()
     const email = chance.email()
     const password = chance.password()
-    const client = chance.pickone([Constants.client.jinjuDB, Constants.client.jinjuStock])
+    const client = chance.pickone([Types.UserClient.jinjuDB, Types.UserClient.jinjuStock])
     const params = {username, email, password, role}
     const user = await User.signup(params, {client})
     // default signup role is normalUser, check whether need to modify user role
@@ -92,7 +93,7 @@ export class Support implements ISupport {
     const id = user.id
     const token = user.token
     const authorization = await Authorization.encode(id, token)
-    if (role === Constants.userRole.administrator) {
+    if (role === Types.UserRole.administrator) {
       this.administrator = {id, token, authorization, username, email, password, client, role}
       return this.administrator
     } else {

@@ -2,6 +2,7 @@
 
 import * as _ from 'lodash'
 import * as uuid from 'uuid/v4'
+import * as Types from '../../types'
 import {Constants} from './constant'
 import {db} from './db'
 
@@ -15,7 +16,7 @@ export class Token {
    * @param {String} client.userAgent
    * @return {String} Token
    */
-  public async get(userId: string, client: Constants.client): Promise<string> {
+  public async get(userId: string, client: Types.UserClient): Promise<string> {
     const result = await db.get({
       Key: {userId},
       TableName: Constants.tables.tokens,
