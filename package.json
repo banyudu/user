@@ -8,7 +8,10 @@
     "dynamodb:migrate": "serverless dynamodb migrate",
     "offline": "serverless offline start",
     "lint": "tslint *.ts src/**/*.ts test/**/*.ts",
-    "lint:fix": "tslint --fix *.ts src/**/*.ts test/**/*.ts"
+    "lint:fix": "tslint --fix *.ts src/**/*.ts test/**/*.ts",
+    "db": "npm run db:start && npm run db:admin",
+    "db:admin": "dynamodb-admin &>/dev/null &",
+    "db:start": "sls dynamodb start &>/dev/null &"
   },
   "repository": {
     "type": "git",
@@ -31,6 +34,7 @@
     "@types/node": "^8.0.31",
     "@types/power-assert": "^1.4.29",
     "chance": "^1.0.11",
+    "dynamodb-admin": "^2.0.2",
     "js-yaml": "^3.10.0",
     "mocha": "^3.5.3",
     "nyc": "^11.2.1",
