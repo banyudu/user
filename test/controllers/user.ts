@@ -31,7 +31,7 @@ describe('User#signin', () => {
       const user = await UserController.signin({
         account: normalUser.username,
         password: normalUser.password,
-      }, {client: normalUser.client})
+      }, await Support.getHeaders(normalUser))
       assert.equal(user.id, normalUser.id, `id of ${normalUser.username}`)
       assert.notEqual(user.token, null, `token of ${normalUser.username}`)
     }, done)
@@ -43,7 +43,7 @@ describe('User#signin', () => {
       const user = await UserController.signin({
         account: normalUser.email,
         password: normalUser.password,
-      }, {client: normalUser.client})
+      }, await Support.getHeaders(normalUser))
       assert.equal(user.id, normalUser.id, `id of ${normalUser.email}`)
       assert.notEqual(user.token, null, `token of ${normalUser.email}`)
     }, done)
@@ -54,14 +54,14 @@ describe('User#delete', () => {
   it('normal user delete self', (done) => {
     Run(async () => {
       const normalUser = await Support.getNormalUser()
-      const result = await UserController.deleteUser({ id: normalUser.id }, {authorization: normalUser.authorization})
+      const result = await UserController.deleteUser({ id: normalUser.id }, await Support.getHeaders(normalUser))
     }, done, {expectException: 1301})
   })
   it('administrator delete self', (done) => {
     Run(async () => {
       const administrator = await Support.getAdministrator()
       const result = await UserController.deleteUser(
-        { id: administrator.id }, {authorization: administrator.authorization})
+        { id: administrator.id }, await Support.getHeaders(administrator))
     }, done, {expectException: 1301})
   })
   it('normal user delete another normal user', (done) => {
@@ -69,7 +69,7 @@ describe('User#delete', () => {
       const normalUser = await Support.getNormalUser()
       const newNormalUser = await Support.getNormalUser({refresh: true})
       const result = await UserController.deleteUser(
-        { id: normalUser.id }, {authorization: newNormalUser.authorization})
+        { id: normalUser.id }, await Support.getHeaders(normalUser))
     }, done, {expectException: 1301})
   })
   it('administrator delete another administrator', (done) => {
@@ -77,7 +77,7 @@ describe('User#delete', () => {
       const administrator = await Support.getAdministrator()
       const newAdministrator = await Support.getAdministrator({refresh: true})
       const result = await UserController.deleteUser(
-        { id: administrator.id }, {authorization: newAdministrator.authorization})
+        { id: administrator.id }, await Support.getHeaders(newAdministrator))
     }, done, {expectException: 1301})
   })
   it('administrator delete normalUser', (done) => {
@@ -85,7 +85,7 @@ describe('User#delete', () => {
       const administrator = await Support.getAdministrator()
       const normalUser = await Support.getNormalUser()
       const result = await UserController.deleteUser(
-        { id: normalUser.id }, {authorization: administrator.authorization})
+        { id: normalUser.id }, await Support.getHeaders(administrator))
       // refresh normal user
       await Support.getNormalUser({refresh: true})
     }, done)
@@ -95,7 +95,7 @@ describe('User#delete', () => {
       const administrator = await Support.getAdministrator()
       const normalUser = await Support.getNormalUser()
       const result = await UserController.deleteUser(
-        { id: administrator.id }, {authorization: normalUser.authorization})
+        { id: administrator.id }, await Support.getHeaders(normalUser))
       // refresh normal user
       await Support.getAdministrator({refresh: true})
     }, done, {expectException: 1301})

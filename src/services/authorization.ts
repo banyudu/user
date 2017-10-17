@@ -9,7 +9,7 @@ interface IAuthorization {
   validate(authorization: string, client: Types.UserClient): Promise<boolean>
   encode(userId: string, token: string): string
   decode(authorization: string): {userId: string, token: string}
-  getUser(authorization: string, client: Types.UserClient): Promise<IUser|undefined>
+  getUser(authorization: string, client: Types.UserClient): Promise<IUser>
 }
 
 export class Authorization implements IAuthorization {
@@ -57,12 +57,19 @@ export class Authorization implements IAuthorization {
     return {userId, token}
   }
 
-  public async getUser(authorization: string, client: Types.UserClient): Promise<IUser|undefined> {
+  public async getUser(authorization: string, client: Types.UserClient): Promise<IUser> {
     const {userId, token} = this.decode(authorization)
     const userToken = await Token.get(userId, client)
     if (token === userToken) {
       const user = await UserController.getProfile({}, {user: {id: userId, token}})
     }
-    return
+    return {
+      authorization: '',
+      client: Types.UserClient.other,
+      id: '',
+      password: '',
+      role: Types.UserRole.normal,
+      token: '',
+    }
   }
 }

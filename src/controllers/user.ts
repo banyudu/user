@@ -309,6 +309,7 @@ export class UserController implements IUserController {
   }
 
   public async deleteUser(params, headers) {
+    debug(headers)
     if (_.isNil(params.id)) {
       throw new Exception(4)
     }

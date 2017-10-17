@@ -22,6 +22,7 @@ interface ISupport {
   getAdministrator(options?: ISupportUserOption): Promise<ISupportUser>
   getNormalUser(options?: ISupportUserOption): Promise<ISupportUser>
   getMaster(options?: ISupportUserOption): Promise<ISupportUser>
+  getHeaders(user: ISupportUser): Promise<{client: Types.UserClient, user: Types.IUser}>
 }
 
 export class Support implements ISupport {
@@ -66,6 +67,12 @@ export class Support implements ISupport {
       this.master = await this.refreshUser(Types.UserRole.master)
     }
     return this.master
+  }
+
+  public async getHeaders(user: ISupportUser): Promise<{client: Types.UserClient, user: Types.IUser}> {
+    //
+    const userInfo = await Authorization.getUser(user.authorization, user.client)
+    return {client: user.client, user: userInfo}
   }
 
   private async refreshUser(role: Types.UserRole): Promise<ISupportUser> {
