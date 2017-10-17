@@ -6,6 +6,7 @@ import * as _ from 'lodash'
 import * as uuid from 'uuid/v4'
 import * as validator from 'validator'
 import * as Types from '../../types'
+import {IUser} from '../../types/user'
 import {Account, Constants, db, debug, Exception, Password, Token} from '../services'
 
 const KEY_FIELDS = ['username', 'email']
@@ -21,9 +22,9 @@ interface ISigninResult {
   token: string
 }
 
-interface IUser {
+interface IUserController {
   signup(params: any, headers?: any): Promise<{id: string, token: string}>
-  getProfile(params: any, headers?: any): Promise<{id: string, token: string}>
+  getProfile(params: any, headers?: any): Promise<IUser>
   signin(params: any, headers?: any): Promise<{id: string, token: string}>
   signout(params: any, headers?: any): Promise<void>
   setProfile(params: any, headers?: any): Promise<{id: string}>
@@ -33,7 +34,7 @@ interface IUser {
 /**
  * @class User handler functions for user service
  */
-export class User implements IUser {
+export class UserController implements IUserController {
   constructor() {
     // do nothing
   }
@@ -138,17 +139,16 @@ export class User implements IUser {
     return { id: data.id, token}
   }
 
-  public async getProfile(params, headers): Promise<{id: string, token: string}> {
-    if (_.isNil(params.id)) {
-      throw new Exception(4)
-    }
+  public async getProfile(params, headers): Promise<IUser> {
     const qryFindUser = {
       AttributesToGet: ['id', 'username', 'email', 'sex', 'firstName', 'lastName'],
-      Key: {id: params.id},
+      Key: {id: headers.user.id},
       TableName: 'users',
     }
-    const result = await db.get(qryFindUser).promise()
-    return _.get(result, 'Item')
+    const qryResult = await db.get(qryFindUser).promise()
+    const result: IUser = _.get(qryResult, 'Item')
+    result.token = headers.user.token
+    return result
   }
 
   public async signin(params, headers?: any): Promise<ISigninResult> {

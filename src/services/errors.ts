@@ -32,4 +32,5 @@ export const Errors = {
   // authorization
   1400: 'Invalid authorization string',
   1401: 'Authorization failed',
+  1402: 'Need Authorization',
 }

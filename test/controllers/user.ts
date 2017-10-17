@@ -1,5 +1,5 @@
 import * as assert from 'power-assert'
-import {User} from '../../src/controllers'
+import {UserController} from '../../src/controllers'
 import {Constants} from '../../src/services'
 import {chance, Run, Support} from '../assets'
 
@@ -8,7 +8,7 @@ describe('User#signup', () => {
     Run(async () => {
       const username = chance.first()
       const password = chance.password()
-      const user = await User.signup({username, password})
+      const user = await UserController.signup({username, password})
       assert(user.id, 'id')
       assert(user.token, 'token')
     }, done)
@@ -17,7 +17,7 @@ describe('User#signup', () => {
     Run(async () => {
       const email = chance.email()
       const password = chance.password()
-      const user = await User.signup({email, password})
+      const user = await UserController.signup({email, password})
       assert(user.id, 'id')
       assert(user.token, 'token')
     }, done)
@@ -28,7 +28,7 @@ describe('User#signin', () => {
   it('signin with username', (done) => {
     Run(async () => {
       const normalUser = await Support.getNormalUser()
-      const user = await User.signin({
+      const user = await UserController.signin({
         account: normalUser.username,
         password: normalUser.password,
       }, {client: normalUser.client})
@@ -40,7 +40,7 @@ describe('User#signin', () => {
   it('signin with email', (done) => {
     Run(async () => {
       const normalUser = await Support.getNormalUser()
-      const user = await User.signin({
+      const user = await UserController.signin({
         account: normalUser.email,
         password: normalUser.password,
       }, {client: normalUser.client})
@@ -54,34 +54,38 @@ describe('User#delete', () => {
   it('normal user delete self', (done) => {
     Run(async () => {
       const normalUser = await Support.getNormalUser()
-      const result = await User.deleteUser({ id: normalUser.id }, {authorization: normalUser.authorization})
+      const result = await UserController.deleteUser({ id: normalUser.id }, {authorization: normalUser.authorization})
     }, done, {expectException: 1301})
   })
   it('administrator delete self', (done) => {
     Run(async () => {
       const administrator = await Support.getAdministrator()
-      const result = await User.deleteUser({ id: administrator.id }, {authorization: administrator.authorization})
+      const result = await UserController.deleteUser(
+        { id: administrator.id }, {authorization: administrator.authorization})
     }, done, {expectException: 1301})
   })
   it('normal user delete another normal user', (done) => {
     Run(async () => {
       const normalUser = await Support.getNormalUser()
       const newNormalUser = await Support.getNormalUser({refresh: true})
-      const result = await User.deleteUser({ id: normalUser.id }, {authorization: newNormalUser.authorization})
+      const result = await UserController.deleteUser(
+        { id: normalUser.id }, {authorization: newNormalUser.authorization})
     }, done, {expectException: 1301})
   })
   it('administrator delete another administrator', (done) => {
     Run(async () => {
       const administrator = await Support.getAdministrator()
       const newAdministrator = await Support.getAdministrator({refresh: true})
-      const result = await User.deleteUser({ id: administrator.id }, {authorization: newAdministrator.authorization})
+      const result = await UserController.deleteUser(
+        { id: administrator.id }, {authorization: newAdministrator.authorization})
     }, done, {expectException: 1301})
   })
   it('administrator delete normalUser', (done) => {
     Run(async () => {
       const administrator = await Support.getAdministrator()
       const normalUser = await Support.getNormalUser()
-      const result = await User.deleteUser({ id: normalUser.id }, {authorization: administrator.authorization})
+      const result = await UserController.deleteUser(
+        { id: normalUser.id }, {authorization: administrator.authorization})
       // refresh normal user
       await Support.getNormalUser({refresh: true})
     }, done)
@@ -90,7 +94,8 @@ describe('User#delete', () => {
     Run(async () => {
       const administrator = await Support.getAdministrator()
       const normalUser = await Support.getNormalUser()
-      const result = await User.deleteUser({ id: administrator.id }, {authorization: normalUser.authorization})
+      const result = await UserController.deleteUser(
+        { id: administrator.id }, {authorization: normalUser.authorization})
       // refresh normal user
       await Support.getAdministrator({refresh: true})
     }, done, {expectException: 1301})

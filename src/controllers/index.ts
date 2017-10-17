@@ -1,2 +1,2 @@
-import {User as UserClass} from './user'
-export const User = new UserClass()
+import {UserController as UserClass} from './user'
+export const UserController = new UserClass()

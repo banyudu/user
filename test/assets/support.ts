@@ -1,4 +1,4 @@
-import {User} from '../../src/controllers'
+import {UserController} from '../../src/controllers'
 import {Authorization, Constants, db, Exception} from '../../src/services'
 import * as Types from '../../types'
 import {chance} from './'
@@ -81,7 +81,7 @@ export class Support implements ISupport {
     const password = chance.password()
     const client = chance.pickone([Types.UserClient.jinjuDB, Types.UserClient.jinjuStock])
     const params = {username, email, password, role}
-    const user = await User.signup(params, {client})
+    const user = await UserController.signup(params, {client})
     // default signup role is normalUser, check whether need to modify user role
     await db.update({
       ExpressionAttributeNames: {'#attrName': 'role'},

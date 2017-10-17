@@ -2,8 +2,8 @@
 
 import * as _ from 'lodash'
 import qs = require('qs')
-import {User} from './src/controllers/user'
-const UserHandler = new User()
+import {UserController} from './src/controllers'
+import {Authorization} from './src/services'
 
 interface IResponse {
   statusCode: number,
@@ -13,6 +13,8 @@ interface IResponse {
     msg?: string,
   }
 }
+
+const API_WHITE_LIST = ['signin', 'signup']
 
 async function run(event, context, callback, handler) {
   const response: IResponse = {
@@ -43,9 +45,13 @@ async function run(event, context, callback, handler) {
     }
   })
   try {
-    const func = UserHandler[handler]
+    event.headers = event.headers || {}
+    if (event.headers.authorization) {
+      event.headers.user = await Authorization.getUser(event.headers.authorization, event.headers.client)
+    }
+    const func = UserController[handler]
     if (func) {
-      const data = await func.bind(UserHandler)(params, event.headers)
+      const data = await func.bind(UserController)(params, event.headers)
       response.body = {
         code: 0,
         data,
@@ -64,11 +70,11 @@ async function run(event, context, callback, handler) {
 
 // routers
 const Routers: any = {}
-const attrs = Object.getOwnPropertyNames(UserHandler.constructor.prototype)
+const attrs = Object.getOwnPropertyNames(UserController.constructor.prototype)
 const blacklist = ['constructor']
 for (const attr of attrs) {
   if (blacklist.indexOf(attr) === -1) {
-    const type = typeof UserHandler.constructor.prototype[attr]
+    const type = typeof UserController.constructor.prototype[attr]
     if (type === 'function') {
       Routers[attr] = async (event, context, callback) => {
         await run(event, context, callback, attr)
