@@ -148,6 +148,7 @@ export class UserController implements IUserController {
     const qryResult = await db.get(qryFindUser).promise()
     const result: IUser = _.get(qryResult, 'Item')
     result.token = headers.user.token
+    result.client = headers.client
     return result
   }
 
@@ -309,7 +310,6 @@ export class UserController implements IUserController {
   }
 
   public async deleteUser(params, headers) {
-    debug(headers)
     if (_.isNil(params.id)) {
       throw new Exception(4)
     }

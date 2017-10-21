@@ -4,7 +4,6 @@ export interface IUser {
   token: string,
   username?: string,
   email?: string,
-  password: string,
   authorization: string,
   client: UserClient
   role: UserRole
