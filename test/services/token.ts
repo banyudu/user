@@ -1,5 +1,5 @@
 import * as assert from 'power-assert'
-import {User} from '../../src/controllers'
+import {UserController} from '../../src/controllers'
 import {Token} from '../../src/services'
 import {chance, Run, Support} from '../assets'
 

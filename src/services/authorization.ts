@@ -62,7 +62,7 @@ export class Authorization implements IAuthorization {
     const userToken = await Token.get(userId, client)
     const result = {
       authorization: '',
-      client: Types.UserClient.other,
+      client,
       id: '',
       role: Types.UserRole.normal,
       token: '',
@@ -72,7 +72,6 @@ export class Authorization implements IAuthorization {
       user = await UserController.getProfile({}, {user: {id: userId, token}})
       if (user) {
         result.authorization = this.encode(user.id, user.token)
-        result.client = user.client
         result.id = user.id
         result.role = user.role
         result.token = user.token

@@ -11,8 +11,12 @@ export async function Run(func: () => Promise<any>, callback: (error?) => any, o
     debug(error)
     exception = error
   }
-  if (options.expectException && !exception) {
-    return callback(new Error(`Except exception ${options.expectException}, but no exception occurs!`))
+  if (options.expectException) {
+    if (!exception) {
+      return callback(new Error(`Except exception ${options.expectException}, but no exception occurs!`))
+    } else {
+      return callback()
+    }
   }
   return callback(exception)
 }

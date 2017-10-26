@@ -141,7 +141,7 @@ export class UserController implements IUserController {
 
   public async getProfile(params, headers): Promise<IUser> {
     const qryFindUser = {
-      AttributesToGet: ['id', 'username', 'email', 'sex', 'firstName', 'lastName'],
+      AttributesToGet: ['id', 'username', 'email', 'sex', 'firstName', 'lastName', 'role'],
       Key: {id: headers.user.id},
       TableName: 'users',
     }
@@ -295,7 +295,6 @@ export class UserController implements IUserController {
         await db.put(queryInsert).promise()
       }
 
-      debug(error)
       // throw
       if (successKeys.length !== actualKeyFields.length) {
         // one of key attributes fails
@@ -313,18 +312,24 @@ export class UserController implements IUserController {
     if (_.isNil(params.id)) {
       throw new Exception(4)
     }
+    if (headers.user.role === Types.UserRole.normal) {
+      throw new Exception(1301)
+    }
     const id = params.id
 
     // fetch user
     const qryGetUser = {
-      AttributesToGet: KEY_FIELDS,
+      AttributesToGet: KEY_FIELDS.concat(['role']),
       Key: {id},
       TableName: 'users',
     }
     const userQryResult = await db.get(qryGetUser).promise()
-    const user = _.get(userQryResult, 'Item')
+    const user: any = _.get(userQryResult, 'Item')
     if (!user) {
       throw new Exception(1300)
+    }
+    if (user.role !== Types.UserRole.normal) {
+      throw new Exception(1301)
     }
 
     // delete master record
