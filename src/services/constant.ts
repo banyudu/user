@@ -4,6 +4,7 @@ export namespace Constants {
   export enum sex {
     female = 2,
     male = 1,
+    secret = 0,
   }
   export const region = {
     local: 'localhost',

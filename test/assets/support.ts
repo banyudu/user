@@ -12,6 +12,9 @@ interface ISupportUser {
   authorization: string,
   client: Types.UserClient,
   role: Types.UserRole,
+  firstName?: string,
+  lastName?: string,
+  sex?: Constants.sex,
 }
 
 interface ISupportUserOption {
@@ -87,7 +90,10 @@ export class Support implements ISupport {
     const email = chance.email()
     const password = chance.password()
     const client = chance.pickone([Types.UserClient.jinjuDB, Types.UserClient.jinjuStock])
-    const params = {username, email, password, role}
+    const firstName = chance.first()
+    const lastName = chance.last()
+    const sex = chance.pick([Constants.sex.female, Constants.sex.male, Constants.sex.secret])
+    const params = {username, email, password, role, firstName, lastName, sex}
     const user = await UserController.signup(params, {client})
     // default signup role is normalUser, check whether need to modify user role
     await db.update({
@@ -104,7 +110,7 @@ export class Support implements ISupport {
       this.administrator = {id, token, authorization, username, email, password, client, role}
       return this.administrator
     } else {
-      this.normalUser = {id, token, authorization, username, email, password, client, role}
+      this.normalUser = {id, token, authorization, username, email, password, client, role, firstName, lastName, sex}
       return this.normalUser
     }
   }

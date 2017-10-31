@@ -6,6 +6,7 @@ import * as _ from 'lodash'
 import * as uuid from 'uuid/v4'
 import * as validator from 'validator'
 import * as Types from '../../types'
+import * as moment from 'moment'
 import {IUser} from '../../types/user'
 import {Account, Constants, db, debug, Exception, Password, Token} from '../services'
 
@@ -83,8 +84,8 @@ export class UserController implements IUserController {
       }
     })
     if (!_.isNil(data.sex)) {
-      data.sex = parseInt(data.sex, 10) || null
-      if (!_.includes([Constants.sex.female, Constants.sex.male], data.sex)) {
+      data.sex = parseInt(data.sex, 10) || Constants.sex.secret
+      if (!_.includes([Constants.sex.female, Constants.sex.male, Constants.sex.secret], data.sex)) {
         throw new Exception(1004)
       }
     }
@@ -113,7 +114,7 @@ export class UserController implements IUserController {
         successKeys.push(key)
       }
 
-      data.createdAt = data.updatedAt = new Date()
+      data.createdAt = data.updatedAt = moment().format()
       // insert the master record
       const query = {
         ConditionExpression: `attribute_not_exists(id)`,
@@ -198,11 +199,8 @@ export class UserController implements IUserController {
   }
 
   public async setProfile(params, headers): Promise<{id: string}> {
-    if (_.isNil(params.id)) {
-      throw new Exception(4)
-    }
     const user = await this.getProfile(params, headers)
-    const acceptFields = KEY_FIELDS.concat(EXTRA_FIELDS).concat(REQUIRED_FIELDS)
+    const acceptFields = EXTRA_FIELDS
 
     // pick accepted fields
     const data: any = _.pick(params, acceptFields)
@@ -212,55 +210,25 @@ export class UserController implements IUserController {
     actualKeyFields = actualKeyFields.filter((e) => params[e] !== user[e]) || []
 
     // validate data
-    if (data.username && !Constants.regex.username.test(data.username)) {
-      throw new Exception(1000)
-    }
-    if (data.email && !validator.isEmail(data.email)) {
-      throw new Exception(1001)
+    if (!_.isNil(data.sex)) {
+      data.sex = parseInt(data.sex, 10) || Constants.sex.secret
+      if (!_.includes([Constants.sex.female, Constants.sex.male, Constants.sex.secret], data.sex)) {
+        throw new Exception(1004)
+      }
     }
     ['firstName', 'lastName'].forEach((e) => {
       if (data[e] && !Constants.regex.fullname.test(data[e])) {
         throw new Exception(1003)
       }
     })
-    if (!_.isNil(data.sex)) {
-      data.sex = parseInt(data.sex, 10) || null
-      if (!_.includes([Constants.sex.female, Constants.sex.male], data.sex)) {
-        throw new Exception(1004)
-      }
-    }
     // validate complete
 
-    let currentKey
-    const successKeys: string[] = []
     try {
-      for (const key of actualKeyFields) {
-        currentKey = key
-        const queryInsert = {
-          ConditionExpression: `attribute_not_exists(${key})`,
-          Item: {
-            userId: params.id,
-            [key]: data[key],
-          },
-          TableName: KEY_TABLE_MAP[key],
-        }
-        await db.put(queryInsert).promise()
-
-        const queryDelete = {
-          Key: {
-            [key]: user[key],
-          },
-          TableName: KEY_TABLE_MAP[key],
-        }
-        await db.delete(queryDelete).promise()
-        successKeys.push(key)
-      }
-
-      data.updatedAt = new Date()
+      data.updatedAt = moment().format()
       // insert the master record
       const query = {
         ExpressionAttributeValues: {},
-        Key: {id: params.id},
+        Key: {id: user.id},
         TableName: 'users',
         UpdateExpression: ``,
       }
@@ -274,38 +242,10 @@ export class UserController implements IUserController {
       query.UpdateExpression = `SET ` + updateActions.join(', ')
       await db.update(query).promise()
     } catch (error) {
-      // rollback if fail
-      for (const key of successKeys) {
-        const queryDelete = {
-          Key: {
-            [key]: data[key],
-          },
-          TableName: KEY_TABLE_MAP[key],
-        }
-        await db.delete(queryDelete).promise()
-
-        const queryInsert = {
-          ConditionExpression: `attribute_not_exists(${key})`,
-          Item: {
-            userId: params.id,
-            [key]: user[key],
-          },
-          TableName: KEY_TABLE_MAP[key],
-        }
-        await db.put(queryInsert).promise()
-      }
-
-      // throw
-      if (successKeys.length !== actualKeyFields.length) {
-        // one of key attributes fails
-        throw new Exception(1100, `Duplicate user '${data[currentKey]}'`)
-      } else {
-        // master record failed
-        throw new Exception(1101, error.code ? `Error updating user.\n${error.code}` : undefined)
-      }
+      throw new Exception(1101, error.code ? `Error updating user.\n${error.code}` : undefined)
     }
 
-    return { id: params.id }
+    return { id: user.id }
   }
 
   public async deleteUser(params, headers) {

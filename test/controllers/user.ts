@@ -101,3 +101,39 @@ describe('User#delete', () => {
     }, done, {expectException: 1301})
   })
 })
+
+describe('User#getProfile', () => {
+  it('normal user', (done) => {
+    Run(async () => {
+      const user = await Support.getNormalUser({refresh: true})
+      const profile = await UserController.getProfile({}, await Support.getHeaders(user))
+      assert.equal(user.email, profile.email)
+      assert.equal(user.id, profile.id)
+      assert.equal(user.role, profile.role)
+      assert.equal(user.username, profile.username)
+      assert.equal(user.firstName, profile.firstName)
+      assert.equal(user.lastName, profile.lastName)
+      assert.equal(user.sex, profile.sex)
+    }, done)
+  })
+})
+
+describe('User#setProfile', () => {
+  it('normal user', (done) => {
+    Run(async () => {
+      const firstName = chance.first()
+      const lastName = chance.last()
+      const sex = chance.pick([Constants.sex.female, Constants.sex.male, Constants.sex.secret])
+      const user = await Support.getNormalUser({refresh: true})
+      await UserController.setProfile({firstName, lastName, sex}, await Support.getHeaders(user))
+      const profile = await UserController.getProfile({}, await Support.getHeaders(user))
+      assert.equal(user.email, profile.email)
+      assert.equal(user.id, profile.id)
+      assert.equal(user.role, profile.role)
+      assert.equal(user.username, profile.username)
+      assert.equal(firstName, profile.firstName)
+      assert.equal(lastName, profile.lastName)
+      assert.equal(sex, profile.sex)
+    }, done)
+  })
+})
