@@ -147,7 +147,7 @@ export class UserController implements IUserController {
       TableName: 'users',
     }
     const qryResult = await db.get(qryFindUser).promise()
-    const result: IUser = _.get(qryResult, 'Item')
+    const result: IUser = _.get(qryResult, 'Item') as IUser
     result.token = headers.user.token
     result.client = headers.client
     return result
