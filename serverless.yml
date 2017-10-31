@@ -14,8 +14,19 @@ plugins:
 
 package:
   exclude:
-    - node_modules/**
     - test/**
+    - .git/**
+    - .nyc_output/**
+    - coverage/**
+    - .editorconfig
+    - .eslint*
+    - .gitignore
+    - .ecosystem.config.js
+    - LICENSE
+    - README.md
+    - tslint.json
+  artifact: /tmp/user-artifact.zip
+
 
 functions:
   getProfile:
