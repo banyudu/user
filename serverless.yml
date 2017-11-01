@@ -25,7 +25,6 @@ package:
     - LICENSE
     - README.md
     - tslint.json
-  artifact: /tmp/user-artifact.zip
 
 
 functions:
