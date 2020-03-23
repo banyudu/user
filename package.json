@@ -28,7 +28,7 @@
   "homepage": "https://github.com/jinjutech/user#readme",
   "devDependencies": {
     "@types/aws-sdk": "^2.7.0",
-    "@types/chance": "^0.7.35",
+    "@types/chance": "^1.0.9",
     "@types/debug": "^0.0.30",
     "@types/mocha": "^2.2.43",
     "@types/node": "^8.0.31",
